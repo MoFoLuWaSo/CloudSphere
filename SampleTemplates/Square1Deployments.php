@@ -527,30 +527,37 @@ class Square1Deployments
         $joins->addLine("sudo chmod -R 777 /var/www/html/square1-test/storage ");
 
 
-        //install npm packages
-        $joins->addLine("npm install ");
-        $joins->addLine("npm run prod ");
-
         //create env file and generate application key
         $joins->addLine("cp .env.example .env ");
         $joins->addLine("php artisan key:gen ");
 
-        //set db credentials
+        //install npm packages
+        $joins->addLine("sudo npm install ");
+        $joins->addLine("sudo npm run prod ");
 
+
+
+        //set db credentials
         $joins->addLine(["Fn::Sub" => "php artisan env:set DB_HOST \${WebBlogDatabaseInstance.Endpoint.Address} "]);
         $joins->addLine(["Fn::Sub" => "php artisan env:set DB_DATABASE \${DBName} "]);
         $joins->addLine(["Fn::Sub" => "php artisan env:set DB_USERNAME \${DBUserName} "]);
         $joins->addLine(["Fn::Sub" => "php artisan env:set DB_PASSWORD \${DBPassword} "]);
 
-
+        //run migration
+        $joins->addLine("php artisan migrate ");
         //email credentials
-        //hi ignore this for now
+        //i will ignore this for now
 
         $joins->addLine("sudo chmod 777 /etc/httpd/conf.d/welcome.conf ");
         $joins->addLine("sudo mv welcome.conf /etc/httpd/conf.d ");
 
         //restart apache
         $joins->addLine("sudo systemctl restart httpd.service ");
+
+        $joins->addLine("crontab -l > mycron ");
+        $joins->addLine("echo \"* * * * * cd /var/www/html/square1-test && php artisan schedule:run >> /dev/null 2>&1\" >> mycron ");
+        $joins->addLine("crontab mycron ");
+        $joins->addLine("rm mycron ");
 
         return $joins->getJoin();
 
