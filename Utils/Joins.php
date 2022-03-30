@@ -13,7 +13,7 @@ class Joins
      * Joins constructor.
      * @param string $delimiter
      */
-    public function __construct(string $delimiter = "")
+    public function __construct(string $delimiter)
     {
         $this->delimiter = $delimiter;
     }
