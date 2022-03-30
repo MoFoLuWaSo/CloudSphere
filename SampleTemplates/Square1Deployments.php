@@ -554,6 +554,7 @@ class Square1Deployments
         //restart apache
         $joins->addLine("sudo systemctl restart httpd.service ");
 
+        $joins->addLine("sudo su ");
         $joins->addLine("crontab -l > mycron ");
         $joins->addLine("echo \"* * * * * cd /var/www/html/square1-test && php artisan schedule:run >> /dev/null 2>&1\" >> mycron ");
         $joins->addLine("crontab mycron ");
